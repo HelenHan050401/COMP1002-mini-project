@@ -1,0 +1,94 @@
+from PIL import Image
+
+image_path = input("Enter the path to the image file: ")
+image = Image.open(image_path)
+import numpy as np
+
+image_array = np.array(image)
+adjusted_array = (
+    image_array.copy()
+)  # Create a copy of the image array to avoid modifying the original
+
+
+def adjust_brightness(image_array, value):
+    height, width, channels = adjusted_array.shape
+
+    # Iterate over each pixel and adjust the brightness
+    for i in range(height):
+        for j in range(width):
+            for k in range(channels):
+                adjusted_array[i, j, k] += value
+                adjusted_array[i, j, k] = max(
+                    0, min(255, adjusted_array[i, j, k])
+                )  # Ensure pixel values stay within 0-255 range
+
+    adjusted_image = Image.fromarray(adjusted_array.astype(np.uint8))
+    return adjusted_image
+
+
+# brightness_value = int(input("Enter the brightness adjustment value: "))
+# adjusted_image = adjust_brightness(adjusted_array, brightness_value)
+
+
+def crop_image(image_array, left, upper, right, lower):
+    cropped_array = image_array[upper:lower, left:right, :]
+    cropped_image = Image.fromarray(cropped_array)
+    return cropped_image
+
+
+# left = int(input("Enter the left coordinate of the crop: "))
+# upper = int(input("Enter the upper coordinate of the crop: "))
+# right = int(input("Enter the right coordinate of the crop: "))
+# lower = int(input("Enter the lower coordinate of the crop: "))
+# adjusted_image = crop_image(adjusted_array, left, upper, right, lower)
+
+
+def blur_image(image):
+    image_array = np.array(image)
+    height, width, channels = image_array.shape
+    # Create a blank array to store the blurred image
+    blurred_array = np.zeros_like(image_array)
+    # Iterate over each pixel in the image
+    for i in range(1, height - 1):
+        for j in range(1, width - 1):
+            # Calculate the average of the pixel values in the 3x3 neighborhood
+            average_value = np.mean(
+                image_array[i - 1 : i + 2, j - 1 : j + 2, :], axis=(0, 1)
+            )
+            blurred_array[i, j, :] = average_value
+    blurred_image = Image.fromarray(blurred_array.astype(np.uint8))
+    return blurred_image
+
+
+def save_image(image, output_path):
+    image.save(output_path)
+    print("Modified image saved successfully!")
+
+
+# Start the operation:
+print("Available functions:")
+print("1. Adjust brightness")
+print("2. Crop")
+print("3. Blur")
+print("4. Save modified image")
+
+choice = input("Enter the number corresponding to the function you want to perform: ")
+
+if choice == "1":
+    brightness_value = int(input("Enter the brightness adjustment value: "))
+    adjusted_image = adjust_brightness(adjusted_array, brightness_value)
+elif choice == "2":
+    left = int(input("Enter the left coordinate of the crop: "))
+    upper = int(input("Enter the upper coordinate of the crop: "))
+    right = int(input("Enter the right coordinate of the crop: "))
+    lower = int(input("Enter the lower coordinate of the crop: "))
+    adjusted_image = crop_image(adjusted_array, left, upper, right, lower)
+elif choice == "3":
+    adjusted_image = blur_image(image)
+# elif choice == "4":
+    
+else:
+    print("Invalid choice. Please try again.")
+
+output_path = input("Enter the path to save the modified image: ")
+save_image(adjusted_image, output_path)
